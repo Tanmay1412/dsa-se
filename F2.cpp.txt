@@ -1,0 +1,164 @@
+/*
+🔘 PROBLEM STATEMENT:-
+Maintain employee information including ID, name, designation, and salary.
+Allow the user to add, delete, and display a particular employee's details.
+If employee does not exist, display an appropriate message.
+Use index sequential file to store the data.
+*/
+
+#include<iostream>
+#include<fstream>
+#include<iomanip>
+#include<vector>
+using namespace std;
+
+// Function to add employee details to the file
+void addEmployee() {
+    ofstream f("db.txt", ios::app);  // Open file in append mode
+
+    string employee_id, name, designation, salary;
+
+    cout << "--- ADD Employee TO DATABASE ---" << endl;
+
+    cout << "Enter Employee ID: ";
+    cin >> employee_id;
+    cout << "Enter Employee Name: ";
+    cin >> name;
+    cout << "Enter Employee Designation: ";
+    cin >> designation;
+    cout << "Enter Employee Salary: ";
+    cin >> salary;
+    cout << endl;
+
+    // Write data in fixed-width format for better alignment
+    f << left << setw(20) << employee_id
+      << setw(20) << name
+      << setw(20) << designation
+      << setw(20) << salary << endl;
+
+    cout << "✅ Employee Added Successfully.\n";
+    f.close();
+}
+
+// Function to delete an employee based on ID
+void deleteEmployee() {
+    ifstream inputFile("db.txt");
+    string line, employee_id;
+    cout << "Enter Employee ID To Delete: ";
+    cin >> employee_id;
+
+    vector<string> fileLines;
+    bool found = false;
+
+    // Read all lines and store those that do NOT match the given ID
+    while (getline(inputFile, line)) {
+        // Skip header line or non-matching lines
+        if (line.find("Employee ID") != string::npos || line.substr(0, employee_id.length()) != employee_id) {
+            fileLines.push_back(line);
+        } else {
+            found = true;
+        }
+    }
+
+    inputFile.close();
+
+    ofstream outputFile("db.txt", ios::out | ios::trunc);  // Truncate original file
+    for (const string& l : fileLines) {
+        outputFile << l << endl;
+    }
+    outputFile.close();
+
+    if (found)
+        cout << "✅ Employee Deleted Successfully.\n";
+    else
+        cout << "❌ Employee ID Not Found.\n";
+}
+
+// Function to search for an employee by ID
+void searchEmployee() {
+    ifstream f("db.txt");
+    string line, employee_id;
+    cout << "Enter Employee ID To Search: ";
+    cin >> employee_id;
+
+    bool found = false;
+
+    while (getline(f, line)) {
+        // Skip header line
+        if (line.find("Employee ID") != string::npos) continue;
+
+        // Check if employee_id matches exactly at the beginning
+        if (line.substr(0, employee_id.length()) == employee_id) {
+            cout << "\n✅ Employee Details Found:\n" << line << endl;
+            found = true;
+            break;
+        }
+    }
+    f.close();
+
+    if (!found) {
+        cout << "❌ Employee Not Found.\n";
+    }
+}
+
+// Function to display all employee data
+void displayData() {
+    ifstream f("db.txt");
+    string line;
+    cout << "\n📋 Displaying All Employee Data:\n";
+    while (getline(f, line)) {
+        cout << line << endl;
+    }
+    f.close();
+}
+
+// Main function: Menu-driven interface
+int main() {
+    // Create or overwrite file and write headers
+    ofstream f("db.txt", ios::out);
+    f << left << setw(20) << "Employee ID"
+      << setw(20) << "Name"
+      << setw(20) << "Designation"
+      << setw(20) << "Salary" << endl;
+    f.close();
+
+    int choice = 0;
+
+    while (choice != 5) {
+        // Display menu
+        cout << "\n--------- M E N U -----------" << endl;
+        cout << "1. Add Employee" << endl;
+        cout << "2. Delete Employee" << endl;
+        cout << "3. Search Employee" << endl;
+        cout << "4. Display All Employees" << endl;
+        cout << "5. Exit" << endl;
+        cout << "-----------------------------" << endl;
+        cout << "Enter Your Choice: ";
+        cin >> choice;
+        cout << endl;
+
+        // Menu selection handling
+        switch (choice) {
+            case 1:
+                addEmployee();
+                break;
+            case 2:
+                deleteEmployee();
+                break;
+            case 3:
+                searchEmployee();
+                break;
+            case 4:
+                displayData();
+                break;
+            case 5:
+                cout << "👋 Exiting Program.\n";
+                break;
+            default:
+                cout << "❗ Invalid Choice. Please Try Again.\n";
+                break;
+        }
+    }
+
+    return 0;
+}

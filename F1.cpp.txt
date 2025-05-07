@@ -1,0 +1,160 @@
+/*
+🔘 PROBLEM STATEMENT:- 
+Department maintains a student information. The file contains
+roll number, name, division and address. Allow user to add,
+delete information of student. Display information of particular
+student. If record does not exist, display an appropriate message.
+Use sequential file to maintain the data.
+*/
+
+/*
+#️⃣Quick Revision Notes:-
+🔹Sequential Files:
+- Data stored one after another (linearly).
+- Not ordered.
+- Useful for small databases like student records.
+*/
+
+#include <iostream>
+#include <fstream>
+#include <iomanip> // For setw
+using namespace std;
+
+// Function to add a new student record to the file
+void addStudent() {
+    ofstream f("db.txt", ios::app); // Open in append mode
+
+    string roll_no, name, div, address;
+
+    cout << "--- ADD STUDENT TO DATABASE ---" << endl;
+    cout << "Enter Student Roll No: ";
+    cin >> roll_no;
+    cout << "Enter Student Name: ";
+    cin >> name;
+    cout << "Enter Student Division: ";
+    cin >> div;
+    cout << "Enter Student Address: ";
+    cin >> address;
+
+    // Write formatted student data to the file
+    f << left << setw(20) << roll_no
+      << setw(20) << name
+      << setw(20) << div
+      << setw(20) << address << endl;
+
+    cout << "✅ Student Added Successfully.\n";
+    f.close();
+}
+
+// Function to delete a student record by roll number
+void deleteStudent() {
+    ifstream f("db.txt");
+    string line, roll_no;
+    string fileData;
+    bool found = false;
+
+    cout << "Enter Roll No of Student to Delete: ";
+    cin >> roll_no;
+
+    // Read all lines, skip the one with the roll number
+    while (getline(f, line)) {
+        if (line.find(roll_no) == string::npos || line.find("Roll No") != string::npos) {
+            fileData += line + "\n";
+        } else {
+            found = true;
+        }
+    }
+    f.close();
+
+    ofstream f1("db.txt", ios::out); // Rewrite file with filtered data
+    f1 << fileData;
+    f1.close();
+
+    if (found)
+        cout << "✅ Student Deleted Successfully.\n";
+    else
+        cout << "⚠️ Student Not Found.\n";
+}
+
+// Function to search and display a student's record by roll number
+void searchStudent() {
+    ifstream f("db.txt");
+    string line, roll_no;
+    bool found = false;
+
+    cout << "Enter Roll No of Student to Search: ";
+    cin >> roll_no;
+
+    // Read and check each line for the roll number
+    while (getline(f, line)) {
+        if (line.find(roll_no) != string::npos && line.find("Roll No") == string::npos) {
+            cout << "✅ Student Details Found:\n" << line << endl;
+            found = true;
+            break;
+        }
+    }
+    f.close();
+
+    if (!found) {
+        cout << "⚠️ Student Not Found.\n";
+    }
+}
+
+// Function to display all student records
+void displayData() {
+    ifstream f("db.txt");
+    string line;
+
+    cout << "\n📋 Displaying All Student Records:\n";
+    while (getline(f, line)) {
+        cout << line << endl;
+    }
+    f.close();
+}
+
+int main() {
+    // Create or reset file with headers
+    ofstream f("db.txt", ios::out);
+    f << left << setw(20) << "Roll No"
+      << setw(20) << "Name"
+      << setw(20) << "Division"
+      << setw(20) << "Address" << endl;
+    f.close();
+
+    int choice = 0;
+    while (true) {
+        // Display menu
+        cout << "\n--------- M E N U -----------" << endl;
+        cout << "1. Add Student" << endl;
+        cout << "2. Delete Student" << endl;
+        cout << "3. Search Student" << endl;
+        cout << "4. Display All Students" << endl;
+        cout << "5. Exit" << endl;
+        cout << "-----------------------------" << endl;
+        cout << "Enter Your Choice: ";
+        cin >> choice;
+
+        cout << endl;
+
+        // Perform operation based on choice
+        switch (choice) {
+            case 1:
+                addStudent();
+                break;
+            case 2:
+                deleteStudent();
+                break;
+            case 3:
+                searchStudent();
+                break;
+            case 4:
+                displayData();
+                break;
+            case 5:
+                cout << "Exiting program. 👋" << endl;
+                return 0;
+            default:
+                cout << "❌ Invalid Choice. Please Try Again." << endl;
+        }
+    }
+}
